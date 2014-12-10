@@ -15,68 +15,30 @@ def test_playlist_should_store_segments():
     assert playlist.segments[0] == segment_1
     assert playlist.segments[1] == segment_2
 
-def test_playlist_should_have_total_duration():
-    segment_1 = Segment(123000, 5)
-    segment_2 = Segment(402000, 10)
-    playlist = Playlist([segment_1, segment_2])
-    assert playlist.total_duration == 15
-
-def test_playlist_should_have_total_size_in_bytes():
-    segment_1 = Segment(30, 1)
-    segment_2 = Segment(20, 1)
-    segment_3 = Segment(10, 1)
-    playlist = Playlist([segment_1, segment_2, segment_3])
-    assert playlist.total_size == 60
-
-def test_playlist_should_have_remaining_size():
-    segment_1 = Segment(30, 1)
-    segment_2 = Segment(20, 1)
-    segment_3 = Segment(10, 1)
-    playlist = Playlist([segment_1, segment_2, segment_3])
-    assert playlist.get_remaining_size(1) == 10
-
-def test_playlist_should_have_remaining_duration():
-    segment_1 = Segment(30, 1)
-    segment_2 = Segment(20, 1)
-    segment_3 = Segment(10, 5)
-    playlist = Playlist([segment_1, segment_2, segment_3])
-    assert playlist.get_remaining_duration(1) == 5
-
-def test_playlist_should_get_heavier_segment():
-    segment_1 = Segment(30, 6)
-    segment_2 = Segment(20, 5)
-    segment_3 = Segment(100, 1)
-    playlist = Playlist([segment_1, segment_2, segment_3])
-    assert playlist.heavier_segment == segment_3
-
-def test_playlist_should_get_lighter_segment():
-    segment_1 = Segment(30, 6)
-    segment_2 = Segment(20, 5)
-    segment_3 = Segment(100, 1)
-    playlist = Playlist([segment_1, segment_2, segment_3])
-    assert playlist.lighter_segment == segment_2
-
-def test_initial_buffering_for_bandwidth_greater_than_heavier_segment_should_be_zero():
-    segment_1 = Segment(124, 1)
-    playlist = Playlist([segment_1])
-    assert calculate_initial_buffering(1000, playlist) == 0
-
-def test_initial_buffering_for_bandwidth_smaller_than_lighter_segment_should_be_entire_playlist():
-    segment_1 = Segment(10000000, 10)
-    playlist = Playlist([segment_1])
-    assert calculate_initial_buffering(1000, playlist) == 10
-
-def test_initial_buffering_time():
-    segment_1 = Segment(1000, 5)
-    segment_2 = Segment(1150, 5)
-    segment_3 = Segment(1200, 5)
-    segment_4 = Segment(1100, 5)
+def test_initial_buffering_segment():
+    segment_1 = Segment(1000, 5) #1600bps
+    segment_2 = Segment(1150, 5) #1840bps
+    segment_3 = Segment(1200, 5) #1920bps
+    segment_4 = Segment(1100, 5) #1760bps
     playlist = Playlist([segment_1, segment_2, segment_3, segment_4])
-    assert calculate_initial_buffering(1600, playlist) == 20
-    assert calculate_initial_buffering(1920, playlist) == 0
-    assert calculate_initial_buffering(1800, playlist) == 5
+    assert calculate_initial_buffering_segment(1600, playlist) == 3
+    assert calculate_initial_buffering_segment(1920, playlist) == 0
+    assert calculate_initial_buffering_segment(1800, playlist) == 0
 
-def test_delta_download_playback_should_return_the_difference_between_download_and_playback():
+def test_initial_buffering_segment_bigger_playlist():
+    segment_1 = Segment(1200, 5) #1920bps
+    segment_2 = Segment(1150, 5) #1840bps
+    segment_3 = Segment(1100, 5) #1760bps
+    segment_4 = Segment(1000, 5) #1600bps
+    segment_5 = Segment(800, 5) #1280bps
+    segment_6 = Segment(600, 5) #960bps
+    segment_7 = Segment(300, 5) #480bps
+    playlist = Playlist([segment_1, segment_2, segment_3, segment_4, segment_5, segment_6, segment_7])
+    assert calculate_initial_buffering_segment(1600, playlist) == 4
+    assert calculate_initial_buffering_segment(1920, playlist) == 0
+    assert calculate_initial_buffering_segment(600, playlist) == 6
+
+def test_delta_download_playback_should_return_the_difference_in_time_between_download_and_playback():
     segment_1 = Segment(1000, 4)
     segment_2 = Segment(1000, 8)
     segment_3 = Segment(1000, 12)

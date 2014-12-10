@@ -13,46 +13,31 @@ class Segment(object):
     def __init__(self, size_in_bytes, duration):
         self.size = size_in_bytes # this will vary according to motion between frames
         self.duration = duration
-        self.bandwidth = (self.size*8/self.duration)
 
 class Playlist(object):
     def __init__(self, segments):
         self.segments = segments
-        self.total_duration = self.sum_attributes('duration')
-        self.total_size = self.sum_attributes('size')
-        self.heavier_segment = max(self.segments, key=lambda s: s.bandwidth)
-        self.lighter_segment = min(self.segments, key=lambda s: s.bandwidth)
-
-    def sum_attributes(self, attr, i=None):
-        if i: return sum([getattr(s, attr) for s in self.segments[i+1:]])
-        else: return sum([getattr(s, attr) for s in self.segments])
-
-    def get_remaining_size(self, i):
-        return self.sum_attributes('size', i)
-
-    def get_remaining_duration(self, i):
-        return self.sum_attributes('duration', i)
 
 def delta_download_playback(bandwidth, segment):
     time_to_download_segment = (segment.size * 8) / bandwidth
     return segment.duration - time_to_download_segment
 
-def calculate_initial_buffering(bandwidth, playlist):
+def calculate_initial_buffering_segment(bandwidth, playlist):
     '''
     this function is responsible for calculate initial startup delay in order to
     fill the buffer avoiding rebuffers during playback.
     '''
-    if (bandwidth) >= playlist.heavier_segment.bandwidth:
-        return 0
-    elif (bandwidth) <= playlist.lighter_segment.bandwidth:
-        return playlist.total_duration
-    else:
-        initial_spare, initial_buffering, remaining_spare = 0, 0, 0
-        for i, segment in enumerate(playlist.segments):
-            initial_spare += delta_download_playback(bandwidth, segment)
-            initial_buffering += segment.duration
-            for remaining_segments in playlist.segments[i:]:
-                remaining_spare += delta_download_playback(bandwidth, remaining_segments)
-            if (initial_spare > 0 and initial_spare - remaining_spare >= 0):
-                return initial_buffering
+    initial_spare, remaining_spare, initial_buffering_segment = 0, 0, 0
+    for i, segment in enumerate(playlist.segments):
+        initial_spare += delta_download_playback(bandwidth, segment)
+        for remaining_segment in playlist.segments[i:]:
+            remaining_spare += delta_download_playback(bandwidth, remaining_segment)
+        if (initial_spare >= 0 and remaining_spare >= 0):
+            return initial_buffering_segment
+        elif (initial_spare > 0 and initial_spare + remaining_spare >= 0):
+            return initial_buffering_segment
+
+        initial_buffering_segment = i
+
+    return initial_buffering_segment
 
