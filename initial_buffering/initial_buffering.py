@@ -19,25 +19,25 @@ class Playlist(object):
         self.segments = segments
 
 def delta_download_playback(bandwidth, segment):
+    '''
+    calculates the spare time (positive or negative of a given segment.
+    '''
     time_to_download_segment = (segment.size * 8) / bandwidth
     return segment.duration - time_to_download_segment
 
 def calculate_initial_buffering_segment(bandwidth, playlist):
     '''
-    this function is responsible for calculate initial startup delay in order to
-    fill the buffer avoiding rebuffers during playback.
+    calculate initial startup segment in order to fill the buffer avoiding
+    rebuffers during playback.
     '''
     initial_spare, remaining_spare, initial_buffering_segment = 0, 0, 0
     for i, segment in enumerate(playlist.segments):
         initial_spare += delta_download_playback(bandwidth, segment)
         for remaining_segment in playlist.segments[i:]:
             remaining_spare += delta_download_playback(bandwidth, remaining_segment)
-        if (initial_spare >= 0 and remaining_spare >= 0):
-            return initial_buffering_segment
-        elif (initial_spare > 0 and initial_spare + remaining_spare >= 0):
+        if (initial_spare > 0 and initial_spare + remaining_spare >= 0):
             return initial_buffering_segment
 
         initial_buffering_segment = i
 
     return initial_buffering_segment
-

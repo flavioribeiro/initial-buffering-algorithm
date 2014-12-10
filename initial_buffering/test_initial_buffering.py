@@ -34,8 +34,9 @@ def test_initial_buffering_segment_bigger_playlist():
     segment_6 = Segment(600, 5) #960bps
     segment_7 = Segment(300, 5) #480bps
     playlist = Playlist([segment_1, segment_2, segment_3, segment_4, segment_5, segment_6, segment_7])
-    assert calculate_initial_buffering_segment(1600, playlist) == 4
     assert calculate_initial_buffering_segment(1920, playlist) == 0
+    assert calculate_initial_buffering_segment(1840, playlist) == 2
+    assert calculate_initial_buffering_segment(1600, playlist) == 4
     assert calculate_initial_buffering_segment(600, playlist) == 6
 
 def test_delta_download_playback_should_return_the_difference_in_time_between_download_and_playback():
