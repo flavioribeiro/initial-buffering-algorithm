@@ -39,4 +39,6 @@ def calculate_initial_buffering(client, playlist):
     this function is responsible for calculate initial startup delay in order to
     fill the buffer avoiding rebuffers during playback.
     '''
-    return 0
+    heavier_seg = playlist.heavier_segment
+    if (client.bandwidth*1000/8) > (heavier_seg.size/heavier_seg.duration):
+        return 0

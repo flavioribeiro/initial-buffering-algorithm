@@ -39,8 +39,9 @@ def test_client_should_have_fixed_bandwidth():
     client = Client(1000)
     assert client.bandwidth == 1000
 
-def test_initial_buffering_bandwidth_for_one_segment():
-    segment_1 = Segment(400, 10)
+def test_initial_buffering_for_bandwidth_greater_than_heavier_segment_should_be_zero():
+    segment_1 = Segment(124, 1)
     playlist = Playlist([segment_1])
     client = Client(1)
+    assert calculate_initial_buffering(client, playlist) == 0
 
