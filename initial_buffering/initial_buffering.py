@@ -7,11 +7,13 @@
 # client such that once we start the playback there is no buffering pause. Assume that the client
 # has sufficient buffer memory to store the entire content, if required.
 
+from __future__ import division
+
 class Segment(object):
     def __init__(self, size_in_bytes, duration):
         self.size = size_in_bytes # this will vary according to motion between frames
         self.duration = duration
-        self.bandwidth = (self.size/self.duration)
+        self.bandwidth = (self.size*8/self.duration)
 
 class Playlist(object):
     def __init__(self, segments):
@@ -34,23 +36,17 @@ class Playlist(object):
     heavier_segment = property(get_heavier_segment)
     lighter_segment = property(get_lighter_segment)
 
-class Client(object):
-    def __init__(self, fixed_bandwidth_in_kbps):
-        # 1 kb/s == 1000 bits per second == 125 bytes per second
-        self.bandwidth = fixed_bandwidth_in_kbps # assuming a constant bandwidth with server
-
 def delta_download_playback(bandwidth, segment):
-    time_to_download_segment = segment.size / bandwidth
+    time_to_download_segment = (segment.size * 8) / bandwidth
     return segment.duration - time_to_download_segment
 
-def calculate_initial_buffering(client, playlist):
+def calculate_initial_buffering(bandwidth, playlist):
     '''
     this function is responsible for calculate initial startup delay in order to
     fill the buffer avoiding rebuffers during playback.
     '''
-    bandwidth_in_bytes_per_sec = client.bandwidth * 1000 / 8
-    if (bandwidth_in_bytes_per_sec) > playlist.heavier_segment.bandwidth:
+    if (bandwidth) >= playlist.heavier_segment.bandwidth:
         return 0
-    elif (bandwidth_in_bytes_per_sec) < playlist.lighter_segment.bandwidth:
+    elif (bandwidth) <= playlist.lighter_segment.bandwidth:
         return playlist.total_duration
 
