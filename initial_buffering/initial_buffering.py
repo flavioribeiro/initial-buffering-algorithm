@@ -18,29 +18,20 @@ class Segment(object):
 class Playlist(object):
     def __init__(self, segments):
         self.segments = segments
+        self.total_duration = self.sum_attributes('duration')
+        self.total_size = self.sum_attributes('size')
+        self.heavier_segment = max(self.segments, key=lambda s: s.bandwidth)
+        self.lighter_segment = min(self.segments, key=lambda s: s.bandwidth)
 
-    def get_total_duration(self):
-        return sum([s.duration for s in self.segments])
-
-    def get_total_size(self):
-        return sum([s.size for s in self.segments])
-
-    def get_heavier_segment(self):
-        return max(self.segments, key=lambda s: s.bandwidth)
-
-    def get_lighter_segment(self):
-        return min(self.segments, key=lambda s: s.bandwidth)
+    def sum_attributes(self, attr, i=None):
+        if i: return sum([getattr(s, attr) for s in self.segments[i+1:]])
+        else: return sum([getattr(s, attr) for s in self.segments])
 
     def get_remaining_size(self, i):
-        return sum([s.size for s in self.segments[i+1:]])
+        return self.sum_attributes('size', i)
 
     def get_remaining_duration(self, i):
-        return sum([s.duration for s in self.segments[i+1:]])
-
-    total_duration = property(get_total_duration)
-    total_size = property(get_total_size)
-    heavier_segment = property(get_heavier_segment)
-    lighter_segment = property(get_lighter_segment)
+        return self.sum_attributes('duration', i)
 
 def delta_download_playback(bandwidth, segment):
     time_to_download_segment = (segment.size * 8) / bandwidth
