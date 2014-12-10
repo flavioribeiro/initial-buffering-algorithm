@@ -21,7 +21,22 @@ class Playlist(object):
     def get_total_size(self):
         return sum([s.size for s in self.segments])
 
+    def get_heavier_segment(self):
+        return max(self.segments, key= lambda s: (s.size/s.duration))
+
     total_duration = property(get_total_duration)
     total_size = property(get_total_size)
+    heavier_segment = property(get_heavier_segment)
 
 
+class Client(object):
+    def __init__(self, fixed_bandwidth_in_kbps):
+        # 1 kb/s == 1000 bits per second == 125 bytes per second
+        self.bandwidth = fixed_bandwidth_in_kbps # assuming a constant bandwidth with server
+
+def calculate_initial_buffering(client, playlist):
+    '''
+    this function is responsible for calculate initial startup delay in order to
+    fill the buffer avoiding rebuffers during playback.
+    '''
+    return 0
