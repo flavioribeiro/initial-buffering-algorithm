@@ -1,4 +1,5 @@
-# You have a HLS stream with content at just 1 bitrate. This content has been encoded in
+# Streaming VBR content over a fixed (and constant) bandwidth channel
+#
 # a VBR fashion leading to different segments having different sizes. If we knew the 
 # following data prior to playback at the client - exact size of each segment in the content, 
 # exact bandwidth of the channel(assume the bandwidth does not vary with time), duration of 
@@ -10,6 +11,7 @@ class Segment(object):
     def __init__(self, size_in_bytes, duration):
         self.size = size_in_bytes # this will vary according to motion between frames
         self.duration = duration
+        self.bandwidth = (self.size/self.duration)
 
 class Playlist(object):
     def __init__(self, segments):
@@ -22,10 +24,10 @@ class Playlist(object):
         return sum([s.size for s in self.segments])
 
     def get_heavier_segment(self):
-        return max(self.segments, key=lambda s: (s.size/s.duration))
+        return max(self.segments, key=lambda s: s.bandwidth)
 
     def get_lighter_segment(self):
-        return min(self.segments, key=lambda s: (s.size/s.duration))
+        return min(self.segments, key=lambda s: s.bandwidth)
 
     total_duration = property(get_total_duration)
     total_size = property(get_total_size)
@@ -42,9 +44,9 @@ def calculate_initial_buffering(client, playlist):
     this function is responsible for calculate initial startup delay in order to
     fill the buffer avoiding rebuffers during playback.
     '''
-    heavier_seg, lighter_seg = playlist.heavier_segment, playlist.lighter_segment
     bandwidth_in_bytes_per_sec = client.bandwidth * 1000 / 8
-    if (bandwidth_in_bytes_per_sec) > (heavier_seg.size/heavier_seg.duration):
+    if (bandwidth_in_bytes_per_sec) > playlist.heavier_segment.bandwidth:
         return 0
-    elif (bandwidth_in_bytes_per_sec) < (lighter_seg.size/lighter_seg.duration):
+    elif (bandwidth_in_bytes_per_sec) < playlist.lighter_segment.bandwidth:
         return playlist.total_duration
+
