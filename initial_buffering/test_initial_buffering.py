@@ -39,11 +39,12 @@ def test_initial_segment_bigger_playlist():
     assert calculate_initial_segment(1600, playlist) == 4
     assert calculate_initial_segment(600, playlist) == 6
 
-def test_delta_download_playback_should_return_the_difference_in_time_between_download_and_playback():
+def test_calculate_download_time():
+    # no matter the duration of segment on this case :)
     segment_1 = Segment(1000, 4)
     segment_2 = Segment(1000, 8)
     segment_3 = Segment(1000, 12)
     bandwidth = 1000
-    assert delta_download_playback(bandwidth, segment_1) == -4
-    assert delta_download_playback(bandwidth, segment_2) == 0
-    assert delta_download_playback(bandwidth, segment_3) == 4
+    assert calculate_download_time(bandwidth, segment_1) == 8
+    assert calculate_download_time(bandwidth, segment_2) == 8
+    assert calculate_download_time(bandwidth, segment_3) == 8
