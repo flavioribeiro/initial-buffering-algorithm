@@ -39,6 +39,10 @@ class Client(object):
         # 1 kb/s == 1000 bits per second == 125 bytes per second
         self.bandwidth = fixed_bandwidth_in_kbps # assuming a constant bandwidth with server
 
+def delta_download_playback(bandwidth, segment):
+    time_to_download_segment = segment.size / bandwidth
+    return segment.duration - time_to_download_segment
+
 def calculate_initial_buffering(client, playlist):
     '''
     this function is responsible for calculate initial startup delay in order to

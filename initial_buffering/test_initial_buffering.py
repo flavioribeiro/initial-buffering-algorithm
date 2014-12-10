@@ -58,3 +58,11 @@ def test_initial_buffering_for_bandwidth_smaller_than_lighter_segment_should_be_
     client = Client(1)
     assert calculate_initial_buffering(client, playlist) == 10
 
+def test_delta_download_playback_should_return_the_difference_between_download_and_playback():
+    segment_1 = Segment(1000, 4)
+    segment_2 = Segment(1000, 8)
+    segment_3 = Segment(1000, 12)
+    bandwidth = 125
+    assert delta_download_playback(bandwidth, segment_1) == -4
+    assert delta_download_playback(bandwidth, segment_2) == 0
+    assert delta_download_playback(bandwidth, segment_3) == 4
