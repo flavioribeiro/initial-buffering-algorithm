@@ -20,7 +20,6 @@ class Playlist(object):
 
 def calculate_download_time(bandwidth, segment):
     return (segment.size * 8) / bandwidth
-    #return segment.duration - time_to_download_segment
 
 def calculate_initial_segment(bandwidth, playlist):
     '''
@@ -44,8 +43,11 @@ def calculate_initial_segment(bandwidth, playlist):
     return initial_segment
 
 def calculate_startup_buffer(bandwidth, playlist):
+    '''
+    returns the amount in seconds that the user will need to wait until 
+    playback starts
+    '''
     segment = calculate_initial_segment(bandwidth, playlist)
     preload_amount_size = sum([s.size for s in playlist.segments[:segment]])
     return (preload_amount_size * 8 / bandwidth)
 
-    
