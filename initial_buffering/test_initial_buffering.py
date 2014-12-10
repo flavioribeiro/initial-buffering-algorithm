@@ -35,6 +35,13 @@ def test_playlist_should_get_heavier_segment():
     playlist = Playlist([segment_1, segment_2, segment_3])
     assert playlist.heavier_segment == segment_3
 
+def test_playlist_should_get_lighter_segment():
+    segment_1 = Segment(30, 6)
+    segment_2 = Segment(20, 5)
+    segment_3 = Segment(100, 1)
+    playlist = Playlist([segment_1, segment_2, segment_3])
+    assert playlist.lighter_segment == segment_2
+
 def test_client_should_have_fixed_bandwidth():
     client = Client(1000)
     assert client.bandwidth == 1000
@@ -44,4 +51,10 @@ def test_initial_buffering_for_bandwidth_greater_than_heavier_segment_should_be_
     playlist = Playlist([segment_1])
     client = Client(1)
     assert calculate_initial_buffering(client, playlist) == 0
+
+def test_initial_buffering_for_bandwidth_smaller_than_lighter_segment_should_be_entire_playlist():
+    segment_1 = Segment(10000000, 10)
+    playlist = Playlist([segment_1])
+    client = Client(1)
+    assert calculate_initial_buffering(client, playlist) == 10
 
