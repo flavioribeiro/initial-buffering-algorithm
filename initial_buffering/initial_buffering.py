@@ -42,3 +42,10 @@ def calculate_initial_segment(bandwidth, playlist):
         initial_segment = i
 
     return initial_segment
+
+def calculate_startup_buffer(bandwidth, playlist):
+    segment = calculate_initial_segment(bandwidth, playlist)
+    preload_amount_size = sum([s.size for s in playlist.segments[:segment]])
+    return (preload_amount_size * 8 / bandwidth)
+
+    

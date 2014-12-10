@@ -48,3 +48,18 @@ def test_calculate_download_time():
     assert calculate_download_time(bandwidth, segment_1) == 8
     assert calculate_download_time(bandwidth, segment_2) == 8
     assert calculate_download_time(bandwidth, segment_3) == 8
+
+def test_calculate_startup_buffer():
+    segment_1 = Segment(1000, 5) #1600bps
+    segment_2 = Segment(1150, 5) #1840bps
+    segment_3 = Segment(1200, 5) #1920bps
+    segment_4 = Segment(1100, 5) #1760bps
+    playlist = Playlist([segment_1, segment_2, segment_3, segment_4])
+    assert calculate_startup_buffer(1600, playlist) == 16.75
+    assert calculate_startup_buffer(1920, playlist) == 0
+    assert calculate_startup_buffer(1000, playlist) == 26.8
+
+
+
+
+
