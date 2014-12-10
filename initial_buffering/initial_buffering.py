@@ -46,4 +46,13 @@ def calculate_initial_buffering(bandwidth, playlist):
         return 0
     elif (bandwidth) <= playlist.lighter_segment.bandwidth:
         return playlist.total_duration
+    else:
+        initial_spare, initial_buffering, remaining_spare = 0, 0, 0
+        for i, segment in enumerate(playlist.segments):
+            initial_spare += delta_download_playback(bandwidth, segment)
+            initial_buffering += segment.duration
+            for remaining_segments in playlist.segments[i:]:
+                remaining_spare += delta_download_playback(bandwidth, remaining_segments)
+            if (initial_spare > 0 and initial_spare - remaining_spare >= 0):
+                return initial_buffering
 

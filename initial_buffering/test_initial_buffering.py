@@ -74,6 +74,7 @@ def test_initial_buffering_time():
     playlist = Playlist([segment_1, segment_2, segment_3, segment_4])
     assert calculate_initial_buffering(1600, playlist) == 20
     assert calculate_initial_buffering(1920, playlist) == 0
+    assert calculate_initial_buffering(1800, playlist) == 5
 
 def test_delta_download_playback_should_return_the_difference_between_download_and_playback():
     segment_1 = Segment(1000, 4)
