@@ -31,6 +31,12 @@ class Playlist(object):
     def get_lighter_segment(self):
         return min(self.segments, key=lambda s: s.bandwidth)
 
+    def get_remaining_size(self, i):
+        return sum([s.size for s in self.segments[i+1:]])
+
+    def get_remaining_duration(self, i):
+        return sum([s.duration for s in self.segments[i+1:]])
+
     total_duration = property(get_total_duration)
     total_size = property(get_total_size)
     heavier_segment = property(get_heavier_segment)
