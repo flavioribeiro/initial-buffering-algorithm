@@ -21,3 +21,10 @@ def test_playlist_should_have_total_duration():
     playlist = Playlist([segment_1, segment_2])
     assert playlist.total_duration == 15
 
+def test_playlist_should_have_total_size_in_bytes():
+    segment_1 = Segment(30, 1)
+    segment_2 = Segment(20, 1)
+    segment_3 = Segment(10, 1)
+    playlist = Playlist([segment_1, segment_2, segment_3])
+    assert playlist.total_size == 60
+

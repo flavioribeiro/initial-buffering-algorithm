@@ -9,7 +9,7 @@
 class Segment(object):
     def __init__(self, size_in_bytes, duration):
         self.size = size_in_bytes # this will vary according to motion between frames
-        self.duration = duration # this 
+        self.duration = duration
 
 class Playlist(object):
     def __init__(self, segments):
@@ -18,4 +18,10 @@ class Playlist(object):
     def get_total_duration(self):
         return sum([s.duration for s in self.segments])
 
+    def get_total_size(self):
+        return sum([s.size for s in self.segments])
+
     total_duration = property(get_total_duration)
+    total_size = property(get_total_size)
+
+
