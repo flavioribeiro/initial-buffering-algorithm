@@ -14,5 +14,8 @@ class Segment(object):
 class Playlist(object):
     def __init__(self, segments):
         self.segments = segments
-        self.total_duration = self.calculate_duration(segments)
 
+    def get_total_duration(self):
+        return sum([s.duration for s in self.segments])
+
+    total_duration = property(get_total_duration)
