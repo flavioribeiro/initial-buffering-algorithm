@@ -25,19 +25,19 @@ def delta_download_playback(bandwidth, segment):
     time_to_download_segment = (segment.size * 8) / bandwidth
     return segment.duration - time_to_download_segment
 
-def calculate_initial_buffering_segment(bandwidth, playlist):
+def calculate_initial_segment(bandwidth, playlist):
     '''
     calculate initial startup segment in order to fill the buffer avoiding
     rebuffers during playback.
     '''
-    initial_spare, remaining_spare, initial_buffering_segment = 0, 0, 0
+    initial_spare, remaining_spare, initial_segment = 0, 0, 0
     for i, segment in enumerate(playlist.segments):
         initial_spare += delta_download_playback(bandwidth, segment)
         for remaining_segment in playlist.segments[i:]:
             remaining_spare += delta_download_playback(bandwidth, remaining_segment)
         if (initial_spare > 0 and initial_spare + remaining_spare >= 0):
-            return initial_buffering_segment
+            return initial_segment
 
-        initial_buffering_segment = i
+        initial_segment = i
 
-    return initial_buffering_segment
+    return initial_segment
